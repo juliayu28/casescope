@@ -1,16 +1,8 @@
-import DeployButton from "@/components/deploy-button";
-import { EnvVarWarning } from "@/components/env-var-warning";
-import HeaderAuth from "@/components/header-auth";
-import { ThemeSwitcher } from "@/components/theme-switcher";
-import { hasEnvVars } from "@/utils/supabase/check-env-vars";
 import { GeistSans } from "geist/font/sans";
-import { ThemeProvider } from "next-themes";
-import Link from "next/link";
 import "./globals.css";
+import { ReactQueryClientProvider } from "@/providers/react-query-client-provider";
 
-const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
+const defaultUrl = "http://localhost:3000";
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
@@ -26,14 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={GeistSans.className} suppressHydrationWarning>
       <body className="bg-background text-foreground">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ReactQueryClientProvider>
           <main className="h-screen w-screen">{children}</main>
-        </ThemeProvider>
+        </ReactQueryClientProvider>
       </body>
     </html>
   );
