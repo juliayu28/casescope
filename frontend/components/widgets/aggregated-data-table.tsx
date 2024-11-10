@@ -74,12 +74,20 @@ export const AggregatedDataTable = () => {
                 >
                   {Array.isArray(value) ? (
                     <div className="flex flex-col gap-1">
-                      {value.map((v) => (
+                      {value.map((v: string | number) => (
                         <p key={v}>{v}</p>
                       ))}
                     </div>
+                  ) : typeof value === "object" && value !== null ? (
+                    Object.entries(value).map(
+                      ([k, v]: [string, string | number]) => (
+                        <div key={k}>
+                          {k}: {v}
+                        </div>
+                      )
+                    )
                   ) : (
-                    JSON.stringify(value)
+                    String(value)
                   )}
                 </TableCell>
               ))}
@@ -122,12 +130,20 @@ export const AggregatedDataTable = () => {
                 >
                   {Array.isArray(value) ? (
                     <div className="flex flex-col gap-1">
-                      {value.map((v) => (
+                      {value.map((v: string | number) => (
                         <p key={v}>{v}</p>
                       ))}
                     </div>
+                  ) : typeof value === "object" && value !== null ? (
+                    Object.entries(value).map(
+                      ([k, v]: [string, string | number]) => (
+                        <div key={k}>
+                          {k}: {v}
+                        </div>
+                      )
+                    )
                   ) : (
-                    JSON.stringify(value)
+                    String(value)
                   )}
                 </TableCell>
               ))}
