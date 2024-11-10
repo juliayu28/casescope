@@ -7,7 +7,6 @@ import { ArrowRightCircleIcon } from "lucide-react";
 
 import Markdown from "react-markdown";
 import { cn } from "@/lib/utils";
-import { ChatRequestOptions } from "ai";
 
 interface ChatInputBoxProps {
   input: string;
@@ -27,7 +26,7 @@ export function ChatInputBox({
   return (
     <form className="relative w-full" onSubmit={handleSubmit}>
       <Input
-        className="w-full pr-10 py-6 focus-visible:ring-offset-0 focus-visible:ring-1"
+        className="w-full pr-10 py-6 border-2 focus-visible:ring-offset-0 focus-visible:ring-1"
         name="prompt"
         value={input}
         onChange={handleInputChange}
@@ -37,12 +36,13 @@ export function ChatInputBox({
         <Button
           size="icon"
           disabled={!input.trim()}
+          className="p-0"
           variant="ghost"
           type="submit"
         >
           <ArrowRightCircleIcon
             className={cn(
-              "h-6 w-6 cursor-pointer",
+              "h-8 w-8 cursor-pointer",
               input.trim() ? "text-foreground/80" : "text-foreground/50"
             )}
           />

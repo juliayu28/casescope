@@ -25,19 +25,17 @@ import { format } from "date-fns";
 // TODO: Separate them into different components
 
 type Message = {
-    id: string;
-    role: "system" | "user" | "assistant";
-    content: string;
-}
+  id: string;
+  role: "system" | "user" | "assistant";
+  content: string;
+};
 
 const Chat = memo(function Chat() {
   // Wrap Chat with memo
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [sessionId, setSessionId] = useState<string | null>(null);
 
   const supabase = createClient();
- 
 
   const handleInputChange = (
     e:
@@ -57,16 +55,19 @@ const Chat = memo(function Chat() {
         id: uuidv4(),
         role: "user",
         content: input,
-      } as Message;
+      } satisfies Message;
       setMessages((prevMessages) => [...prevMessages, userMessage]);
       setInput("");
 
       try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+        // const {
+        //   data: { session },
+        // } = await supabase.auth.getSession();
 
-        if (!session) throw new Error("No session found");
+        // if (!session) throw new Error("No session found");
+        const body = JSON.stringify({
+          messages: [{ role: "user", content: input }],
+        });
 
         const response = await fetch(
           process.env.NEXT_PUBLIC_API_URL + "/chat",
@@ -74,9 +75,10 @@ const Chat = memo(function Chat() {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${session.access_token}`,
             },
-            body: JSON.stringify({ message: input, session_id: sessionId }),
+            body: JSON.stringify({
+              messages: [{ role: "user", content: input }],
+            }),
           }
         );
 
@@ -102,15 +104,19 @@ const Chat = memo(function Chat() {
 
           for (const line of lines) {
             if (line.startsWith("data: ")) {
-              const data = JSON.parse(line.slice(6));
-              if (data.delta) {
-                assistantMessage.content += data.delta;
-                setMessages((prevMessages) => [
-                  ...prevMessages.slice(0, -1),
-                  { ...assistantMessage },
-                ]);
-              } else if (data.session_id && data.session_id !== sessionId) {
-                setSessionId(data.session_id);
+              try {
+                // FIX: breaks on [DONE]
+                const data = JSON.parse(line.slice(6));
+
+                if (data.delta) {
+                  assistantMessage.content += data.delta;
+                  setMessages((prevMessages) => [
+                    ...prevMessages.slice(0, -1),
+                    { ...assistantMessage },
+                  ]);
+                }
+              } catch (err) {
+                console.error("Error: " + line + err);
               }
             }
           }
@@ -123,15 +129,17 @@ const Chat = memo(function Chat() {
   );
 
   return (
-    <div className="flex flex-col h-full pr-2">
-     
-       
-        <Button variant="outline" size="icon" className="h-8" onClick={() => {
+    <div className="flex flex-col h-full pr-2 py-10 max-w-2xl mx-auto">
+      <Button
+        variant="outline"
+        className="w-fit"
+        onClick={() => {
           setMessages([]);
-        }}>
-          <MessageCirclePlus className="w-4 h-4" />
-        </Button>
-     
+        }}
+      >
+        + New Chat
+      </Button>
+
       <ScrollArea className="h-full">
         <div className="flex flex-col gap-4">
           {messages.map((message) => (
