@@ -1,3 +1,6 @@
+"use client";
+
+import { useQuery } from "@supabase-cache-helpers/postgrest-react-query";
 import {
   Table,
   TableBody,
@@ -7,6 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+import { fetchIssues } from "@/lib/queries";
+import { createClient } from "@/utils/supabase/client";
 
 const fakeData = [
   {
@@ -57,45 +62,56 @@ const fakeData = [
 ];
 
 export const DataTableByIssue = () => {
+  const supabase = createClient();
+
+  const { data: issues } = useQuery(fetchIssues(supabase));
+
   return (
-    <>
-      <h2 className="text-2xl font-bold px-2 mb-4">By Issue</h2>
-      <Table className="w-full h-fit bg-background rounded-sm">
-        <TableHeader>
-          <TableRow>
-            {Object.keys(fakeData[0]).map((key) => (
-              <TableHead className="w-auto py-2">{key}</TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {fakeData.map((row) => (
+    issues && (
+      <>
+        <h2 className="text-2xl font-bold px-2 mb-4">By Issue</h2>
+        <Table className="w-full h-fit bg-background rounded-sm">
+          <TableHeader>
             <TableRow>
-              {Object.values(row).map((value) => (
-                <TableCell className="font-medium w-fit">
-                  {typeof value === "object" && value !== null ? (
-                    <div className="flex flex-col gap-1">
-                      {Object.entries(value).map(([key, value]) => (
-                        <p key={key}>
-                          {key}: {value}
-                        </p>
-                      ))}
-                    </div>
-                  ) : Array.isArray(value) ? (
-                    <div className="flex flex-col gap-1">
-                      {value.map((v) => (
-                        <p key={v}>{v}</p>
-                      ))}
-                    </div>
-                  ) : (
-                    value
-                  )}
-                </TableCell>
+              {Object.keys(issues?.[0]).map((key) => (
+                <TableHead className="w-auto py-2" key={key}>
+                  {key}
+                </TableHead>
               ))}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </>
+          </TableHeader>
+          <TableBody>
+            {issues?.map((row) => (
+              <TableRow>
+                {Object.values(row).map((value) => (
+                  <TableCell className="font-medium w-fit">
+                    {typeof value === "object" && value !== null ? (
+                      <div
+                        className="flex flex-col gap-1"
+                        key={JSON.stringify(value)}
+                      >
+                        {Object.entries(value).map(([key, value]) => (
+                          <p key={key}>
+                            {key}: {value}
+                          </p>
+                        ))}
+                      </div>
+                    ) : Array.isArray(value) ? (
+                      <div className="flex flex-col gap-1">
+                        {value.map((v) => (
+                          <p key={v}>{v}</p>
+                        ))}
+                      </div>
+                    ) : (
+                      value
+                    )}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </>
+    )
   );
 };

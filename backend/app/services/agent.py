@@ -5,8 +5,9 @@ lawyer_agent = Agent(
     name="Lawyer Agent",
     role="Your job is to analyze historical public records to identify effective legal arguments based on past hearing orders.",
     model=OpenAIChat(id="gpt-4o"),
-    tools=[],
-    instructions=[""],
-    show_tool_calls=True,
+    # instructions=[""],
+    # tools=[get_hearing_info],
+    # instructions=[""],
+    # show_tool_calls=True,
     markdown=True,
 )

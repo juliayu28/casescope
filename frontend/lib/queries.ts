@@ -8,5 +8,10 @@ export const fetchCases = (client: any) => {
 };
 
 export const fetchIssues = (client: any) => {
-  return client.from("hearing_data").select("Hearing_Dates").throwOnError();
+  return client
+    .from("hearing_data")
+    .select(
+      "Case_Number, Landlord_Name, City, Type_Of_Lease, Type_Of_Unit, Length_Of_Tenancy, Family_Income_Level, Monthly_Rent, category_of_tenant_issue"
+    )
+    .throwOnError();
 };

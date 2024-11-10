@@ -1,6 +1,7 @@
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import { ReactQueryClientProvider } from "@/providers/react-query-client-provider";
+import { FormStoreProvider } from "@/providers/intake-form-store-provider";
 
 const defaultUrl = "http://localhost:3000";
 
@@ -19,7 +20,9 @@ export default function RootLayout({
     <html lang="en" className={GeistSans.className} suppressHydrationWarning>
       <body className="bg-background text-foreground">
         <ReactQueryClientProvider>
-          <main className="h-screen w-screen">{children}</main>
+          <FormStoreProvider>
+            <main className="h-screen w-screen">{children}</main>
+          </FormStoreProvider>
         </ReactQueryClientProvider>
       </body>
     </html>

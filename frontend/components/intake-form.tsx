@@ -1,9 +1,6 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-// @ts-ignore
-import { z } from "zod";
 import {
   Form,
   FormControl,
@@ -15,25 +12,25 @@ import {
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Checkbox } from "./ui/checkbox";
+import { useFormStore } from "@/providers/intake-form-store-provider";
 
-const formSchema = z.object({
-  landlord_name: z.string().optional(),
-  city: z.string().array(),
-  lease_type: z.string().array(),
-  unit_type: z.string().array(),
-  tenant_issues: z.string().min(2),
-  habitability_issues: z.string().array(),
-  maintenance_issues: z.string().array(),
-  violations: z.string().array(),
-  loss_reduced_housing_services: z.string().array(),
-  length_of_tenancy: z.string(),
-  family_income_level: z.string(),
-  monthly_rent: z.string(),
-});
+interface FormValues {
+  landlord_name?: string;
+  city: string[];
+  lease_type: string[];
+  unit_type: string[];
+  tenant_issues: string;
+  habitability_issues: string[];
+  maintenance_issues: string[];
+  violations: string[];
+  loss_reduced_housing_services: string[];
+  length_of_tenancy: string;
+  family_income_level: string;
+  monthly_rent: string;
+}
 
 export const IntakeForm = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<FormValues>({
     defaultValues: {
       landlord_name: "",
       city: [],
@@ -49,8 +46,10 @@ export const IntakeForm = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  const { setFormState } = useFormStore((state) => state);
+
+  function onSubmit(values: FormValues) {
+    setFormState(values);
   }
 
   const habitabilityIssues = [
@@ -82,7 +81,7 @@ export const IntakeForm = () => {
   ];
 
   const violations = [
-    "Failure to comply with code violations that materially affect tenants’ health and safety, including Health and Safety Code Sec. 17920.3. (Attach copy of Notice to Correct from City Building Inspector or Code Enforcement Officer, or County Environmental Health Inspector",
+    "Failure to comply with code violations that materially affect tenants' health and safety, including Health and Safety Code Sec. 17920.3. (Attach copy of Notice to Correct from City Building Inspector or Code Enforcement Officer, or County Environmental Health Inspector",
   ];
 
   const lossReducedHousingServices = [
@@ -450,7 +449,7 @@ export const IntakeForm = () => {
         />
         <FormField
           control={form.control}
-          name="landlord_name"
+          name="monthly_rent"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Monthly Rent</FormLabel>

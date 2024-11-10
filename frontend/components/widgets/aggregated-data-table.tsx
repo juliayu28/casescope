@@ -11,10 +11,9 @@ import {
   TableRow,
 } from "../ui/table";
 import { createClient } from "@/utils/supabase/client";
-import { useEffect } from "react";
-import { ScrollArea } from "../ui/scroll-area";
 import { useQuery } from "@supabase-cache-helpers/postgrest-react-query";
-import { fetchCases } from "@/lib/queries";
+import { fetchCases, fetchIssues } from "@/lib/queries";
+import { useFormStore } from "@/providers/intake-form-store-provider";
 
 const fakeData = [
   {
@@ -44,10 +43,12 @@ const fakeData = [
 
 export const AggregatedDataTable = () => {
   const [selectedIssue, setSelectedIssue] = useState<string | null>(null);
+  const { landlord_name } = useFormStore((state) => state);
 
   const supabase = createClient();
 
   const { data: cases } = useQuery(fetchCases(supabase));
+  const { data: issues } = useQuery(fetchIssues(supabase));
 
   return (
     <>
@@ -65,7 +66,7 @@ export const AggregatedDataTable = () => {
         {/* <ScrollArea className="h-1/3"> */}
         <TableBody>
           {fakeData.map((row) => (
-            <TableRow>
+            <TableRow key={JSON.stringify(row)}>
               {Object.values(row).map((value) => (
                 <TableCell
                   key={JSON.stringify(value)}
@@ -100,17 +101,25 @@ export const AggregatedDataTable = () => {
               "Reasoning_behind_the_decision",
               "Total_relief_granted",
             ].map((key) => (
-              <TableHead className="w-auto py-2 bg-gray-100">{key}</TableHead>
+              <TableHead className="w-auto py-2 bg-gray-100" key={key}>
+                {key}
+              </TableHead>
             ))}
           </TableRow>
         </TableHeader>
         {/* <ScrollArea className="h-1/3"> */}
         <TableBody>
           {/* @ts-ignore */}
-          {cases?.map((row) => (
-            <TableRow>
+          {(landlord_name
+            ? cases?.filter((row) => row.Landlord_Name === landlord_name)
+            : cases
+          )?.map((row) => (
+            <TableRow key={JSON.stringify(row)}>
               {Object.values(row).map((value) => (
-                <TableCell className="font-medium w-fit">
+                <TableCell
+                  className="font-medium w-fit"
+                  key={JSON.stringify(value)}
+                >
                   {Array.isArray(value) ? (
                     <div className="flex flex-col gap-1">
                       {value.map((v) => (
