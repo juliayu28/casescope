@@ -24,11 +24,11 @@ export const DataTableByIssue = () => {
     issues && (
       <>
         <h2 className="text-2xl font-bold px-2 mb-4">By Issue</h2>
-        <Table className="w-full h-fit bg-background rounded-sm">
+        <Table className="w-full h-fit bg-background rounded-sm border border-gray-200">
           <TableHeader>
             <TableRow>
               {Object.keys(issues?.[0]).map((key) => (
-                <TableHead className="w-auto py-2" key={key}>
+                <TableHead className="w-auto py-2 bg-gray-100" key={key}>
                   {key}
                 </TableHead>
               ))}
