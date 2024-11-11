@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -14,8 +14,32 @@ import { createClient } from "@/utils/supabase/client";
 import { useQuery } from "@supabase-cache-helpers/postgrest-react-query";
 import { fetchCases, fetchIssues } from "@/lib/queries";
 import { useFormStore } from "@/providers/intake-form-store-provider";
+import { cn } from "@/lib/utils";
 
 const fakeData = [
+  {
+    Category: "Loss of or Reduced Housing Services",
+    Issue: "Illegal rent increase",
+    "Total Issues": 45,
+    "Success Rate": "76%",
+    "Avg Duration (Years)": 1.8,
+    "Common Landlord Defenses": {
+      "Capital Improvements": "55%",
+      "Market Rate Adjustment": "48%",
+      "Operating Cost Increase": "42%",
+      "Proper Notice Given": "38%",
+    },
+    "Relief Percentage Range": {
+      min: "100%",
+      max: "100%",
+    },
+    "Relief Avg Dollar Amount": "4800",
+    "Code Violations": [
+      "Civil Code §827",
+      "Rent Ordinance §37.3",
+      "Civil Code §1947.12",
+    ],
+  },
   {
     Category: "Habitability",
     Issue: "mold",
@@ -50,6 +74,10 @@ export const AggregatedDataTable = () => {
   const { data: cases } = useQuery(fetchCases(supabase));
   const { data: issues } = useQuery(fetchIssues(supabase));
 
+  useEffect(() => {
+    setSelectedIssue(fakeData[0].Issue);
+  }, [issues]);
+
   return (
     <>
       <h2 className="text-2xl font-bold px-2 mb-4">Aggregated Data</h2>
@@ -64,13 +92,18 @@ export const AggregatedDataTable = () => {
           </TableRow>
         </TableHeader>
         {/* <ScrollArea className="h-1/3"> */}
+
         <TableBody>
           {fakeData.map((row) => (
             <TableRow key={JSON.stringify(row)}>
               {Object.values(row).map((value) => (
                 <TableCell
                   key={JSON.stringify(value)}
-                  className="font-medium w-fit"
+                  className={cn(
+                    "font-medium w-fit",
+                    selectedIssue === row.Issue && "bg-gray-200"
+                  )}
+                  onClick={() => setSelectedIssue(row.Issue)}
                 >
                   {Array.isArray(value) ? (
                     <div className="flex flex-col gap-1">
@@ -96,6 +129,8 @@ export const AggregatedDataTable = () => {
         </TableBody>
         {/* </ScrollArea> */}
       </Table>
+
+      <h2 className="text-2xl font-bold px-2">Cases for {selectedIssue}</h2>
       <Table className="w-full h-fit bg-background rounded-md border">
         <TableHeader>
           <TableRow>
@@ -121,34 +156,39 @@ export const AggregatedDataTable = () => {
           {(landlord_name
             ? cases?.filter((row) => row.Landlord_Name === landlord_name)
             : cases
-          )?.map((row) => (
-            <TableRow key={JSON.stringify(row)}>
-              {Object.values(row).map((value) => (
-                <TableCell
-                  className="font-medium w-fit"
-                  key={JSON.stringify(value)}
-                >
-                  {Array.isArray(value) ? (
-                    <div className="flex flex-col gap-1">
-                      {value.map((v: string | number) => (
-                        <p key={v}>{v}</p>
-                      ))}
-                    </div>
-                  ) : typeof value === "object" && value !== null ? (
-                    Object.entries(value).map(
-                      ([k, v]: [string, string | number]) => (
-                        <div key={k}>
-                          {k}: {v}
-                        </div>
+          )
+            ?.slice(
+              selectedIssue === "Illegal rent increase" ? 0 : -3,
+              selectedIssue === "Illegal rent increase" ? 3 : undefined
+            )
+            .map((row) => (
+              <TableRow key={JSON.stringify(row)}>
+                {Object.values(row).map((value) => (
+                  <TableCell
+                    className="font-medium w-fit"
+                    key={JSON.stringify(value)}
+                  >
+                    {Array.isArray(value) ? (
+                      <div className="flex flex-col gap-1">
+                        {value.map((v: string | number) => (
+                          <p key={v}>{v}</p>
+                        ))}
+                      </div>
+                    ) : typeof value === "object" && value !== null ? (
+                      Object.entries(value).map(
+                        ([k, v]: [string, string | number]) => (
+                          <div key={k}>
+                            {k}: {v}
+                          </div>
+                        )
                       )
-                    )
-                  ) : (
-                    String(value)
-                  )}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
+                    ) : (
+                      String(value)
+                    )}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
         </TableBody>
         {/* </ScrollArea> */}
       </Table>
